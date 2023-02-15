@@ -25,20 +25,20 @@ import com.jun.app.modules.account.endpoint.controller.SignUpForm;
 
 @Service
 @RequiredArgsConstructor
+@Transactional 
 public class AccountService  implements UserDetailsService{ 
 
     private final AccountRepository accountRepository;
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
 
-    @Transactional
     public Account signUp(SignUpForm signUpForm) {
         Account newAccount = saveNewAccount(signUpForm);
         newAccount.generateToken();
         sendVerificationEmail(newAccount);
         return newAccount;
     }
-
+    
     private Account saveNewAccount(SignUpForm signUpForm) {
         Account account = Account.builder()
                 .email(signUpForm.getEmail())
@@ -72,12 +72,20 @@ public class AccountService  implements UserDetailsService{
         SecurityContextHolder.getContext().setAuthentication(token); // AuthenticationManager를 쓰는 방법이 정석적인 방ㅇ법
     }
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { // (2)
-        Account account = Optional.ofNullable(accountRepository.findByEmail(username)) // (3)
+    @Transactional(readOnly = true)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException { 
+        Account account = Optional.ofNullable(accountRepository.findByEmail(username)) 
                 .orElse(accountRepository.findByNickname(username));
-        if (account == null) { // (4)
+        if (account == null) { 
             throw new UsernameNotFoundException(username);
         }
-        return new UserAccount(account); // (5)
+        return new UserAccount(account); 
     }
+
+
+	public void verify(Account account) {
+		account.verified();
+		login(account);
+		
+	}
 }

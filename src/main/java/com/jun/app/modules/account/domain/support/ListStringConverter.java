@@ -2,6 +2,8 @@ package com.jun.app.modules.account.domain.support;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,6 +20,9 @@ public class ListStringConverter implements AttributeConverter<List<String>, Str
 
     @Override
     public List<String> convertToEntityAttribute(String dbData) {
+        if (dbData == null) {
+            return Collections.emptyList();
+        }
         return Stream.of(dbData.split(","))
                 .collect(Collectors.toList());
     }

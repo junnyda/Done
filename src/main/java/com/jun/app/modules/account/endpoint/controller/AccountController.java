@@ -1,4 +1,4 @@
-	package com.jun.app.modules.account.endpoint.controller;
+package com.jun.app.modules.account.endpoint.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -61,8 +61,7 @@ public class AccountController {
             model.addAttribute("error", "wrong.token");
             return "account/email-verification";
         }
-        account.verified();
-        accountService.login(account);
+        accountService.verify(account);
         model.addAttribute("numberOfUsers", accountRepository.count());
         model.addAttribute("nickname", account.getNickname());
         return "account/email-verification";
