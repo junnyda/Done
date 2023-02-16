@@ -1,5 +1,12 @@
 package com.jun.app.modules.settings.controller;
 
+
+
+import com.jun.app.modules.account.application.AccountService;
+import com.jun.app.modules.account.domain.entity.Account;
+import com.jun.app.modules.account.endpoint.controller.form.Profile;
+import com.jun.app.modules.account.support.CurrentUser;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,13 +17,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.jun.app.modules.account.application.AccountService;
-import com.jun.app.modules.account.domain.entity.Account;
-import com.jun.app.modules.account.endpoint.controller.form.Profile;
-import com.jun.app.modules.account.support.CurrentUser;
-
 import javax.validation.Valid;
-
 
 @Controller
 @RequiredArgsConstructor

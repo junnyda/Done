@@ -1,14 +1,16 @@
 package com.jun.app.modules.account.domain.entity;
 
+import com.jun.app.modules.settings.controller.NotificationForm;
+
 import lombok.*;
 import org.hibernate.Hibernate;
-
-import com.jun.app.modules.settings.controller.NotificationForm;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
+
+import com.jun.app.modules.account.domain.entity.AuditingEntity;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED) @AllArgsConstructor(access = AccessLevel.PROTECTED)
