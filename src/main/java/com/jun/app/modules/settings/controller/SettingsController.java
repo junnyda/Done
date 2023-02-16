@@ -1,12 +1,5 @@
 package com.jun.app.modules.settings.controller;
 
-
-
-import com.jun.app.modules.account.application.AccountService;
-import com.jun.app.modules.account.domain.entity.Account;
-import com.jun.app.modules.account.endpoint.controller.form.Profile;
-import com.jun.app.modules.account.support.CurrentUser;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +9,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.jun.app.modules.account.application.AccountService;
+import com.jun.app.modules.account.domain.entity.Account;
+import com.jun.app.modules.account.endpoint.controller.form.Profile;
+import com.jun.app.modules.account.support.CurrentUser;
 
 import javax.validation.Valid;
 
@@ -29,12 +27,21 @@ public class SettingsController {
     static final String SETTINGS_PASSWORD_URL = "/" + SETTINGS_PASSWORD_VIEW_NAME;
     static final String SETTINGS_NOTIFICATION_VIEW_NAME = "settings/notification";
     static final String SETTINGS_NOTIFICATION_URL = "/" + SETTINGS_NOTIFICATION_VIEW_NAME;
+    static final String SETTINGS_ACCOUNT_VIEW_NAME = "settings/account";
+    static final String SETTINGS_ACCOUNT_URL = "/" + SETTINGS_ACCOUNT_VIEW_NAME;
 
     private final AccountService accountService;
+    private final PasswordFormValidator passwordFormValidator;
+    private final NicknameFormValidator nicknameFormValidator;
 
     @InitBinder("passwordForm")
-    public void initBinder(WebDataBinder webDataBinder) {
-        webDataBinder.addValidators(new PasswordFormValidator());
+    public void passwordFormValidator(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(passwordFormValidator);
+    }
+
+    @InitBinder("nicknameForm")
+    public void nicknameFormInitBinder(WebDataBinder webDataBinder) {
+        webDataBinder.addValidators(nicknameFormValidator);
     }
 
     @GetMapping(SETTINGS_PROFILE_URL)
@@ -89,5 +96,23 @@ public class SettingsController {
         accountService.updateNotification(account, notificationForm);
         attributes.addFlashAttribute("message", "알림설정을 수정하였습니다.");
         return "redirect:" + SETTINGS_NOTIFICATION_URL;
+    }
+
+    @GetMapping(SETTINGS_ACCOUNT_URL)
+    public String nicknameForm(@CurrentUser Account account, Model model) {
+        model.addAttribute(account);
+        model.addAttribute(new NicknameForm(account.getNickname()));
+        return SETTINGS_ACCOUNT_VIEW_NAME;
+    }
+
+    @PostMapping(SETTINGS_ACCOUNT_URL)
+    public String updateNickname(@CurrentUser Account account, @Valid NicknameForm nicknameForm, Errors errors, Model model, RedirectAttributes attributes) {
+        if (errors.hasErrors()) {
+            model.addAttribute(account);
+            return SETTINGS_ACCOUNT_VIEW_NAME;
+        }
+        accountService.updateNickname(account, nicknameForm.getNickname());
+        attributes.addFlashAttribute("message", "닉네임을 수정하였습니다.");
+        return "redirect:" + SETTINGS_ACCOUNT_URL;
     }
 }

@@ -1,12 +1,13 @@
 package com.jun.app.modules.settings.controller;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
+
 
 import com.jun.app.account.infra.repository.AccountRepository;
 import com.jun.app.modules.account.domain.entity.Account;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 
 @Component 
 @RequiredArgsConstructor

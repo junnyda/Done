@@ -1,6 +1,9 @@
 package com.jun.app.modules.account.domain.entity;
 
 import com.jun.app.modules.settings.controller.NotificationForm;
+import com.jun.app.modules.account.domain.entity.AuditingEntity;
+
+
 
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -9,8 +12,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
-
-import com.jun.app.modules.account.domain.entity.AuditingEntity;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED) @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -89,6 +90,10 @@ public class Account extends AuditingEntity {
         this.notificationSetting.studyUpdatedByEmail = notificationForm.isStudyUpdatedByEmail();
         this.notificationSetting.studyRegistrationResultByEmail = notificationForm.isStudyRegistrationResultByEmail();
         this.notificationSetting.studyRegistrationResultByWeb = notificationForm.isStudyRegistrationResultByWeb();
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     @Embeddable
