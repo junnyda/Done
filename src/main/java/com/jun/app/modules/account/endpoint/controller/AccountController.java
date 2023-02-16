@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.jun.app.account.infra.repository.AccountRepository;
 import com.jun.app.modules.account.application.AccountService;
 import com.jun.app.modules.account.domain.entity.Account;
@@ -94,6 +96,35 @@ public class AccountController {
     	model.addAttribute("isOwner", byNickname.equals(account));
     	return "account/profile";
     }
- 
-    
+    @GetMapping("/email-login")
+    public String emailLoginForm() {
+        return "account/email-login";
+    }
+
+    @PostMapping("/email-login")
+    public String sendLinkForEmailLogin(String email, Model model, RedirectAttributes attributes) {
+        Account account = accountRepository.findByEmail(email);
+        if (account == null) {
+            model.addAttribute("error", "유효한 이메일 주소가 아닙니다.");
+            return "account/email-login";
+        }
+//        if (!account.enableToSendEmail()) {
+ //           model.addAttribute("error", "너무 잦은 요청입니다. 5분 뒤에 다시 시도하세요.");
+  //          return "account/email-login";
+   //     }
+        accountService.sendLoginLink(account);
+        attributes.addFlashAttribute("message", "로그인 가능한 링크를 이메일로 전송하였습니다.");
+        return "redirect:/email-login";
+    }
+
+    @GetMapping("/login-by-email")
+    public String loginByEmail(String token, String email, Model model) {
+        Account account = accountRepository.findByEmail(email);
+        if (account == null || !account.isValid(token)) {
+            model.addAttribute("error", "로그인할 수 없습니다.");
+            return "account/logged-in-by-email";
+        }
+        accountService.login(account);
+        return "account/logged-in-by-email";
+    }
 }

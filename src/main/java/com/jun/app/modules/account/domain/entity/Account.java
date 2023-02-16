@@ -2,9 +2,6 @@ package com.jun.app.modules.account.domain.entity;
 
 import com.jun.app.modules.settings.controller.NotificationForm;
 import com.jun.app.modules.account.domain.entity.AuditingEntity;
-
-
-
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -94,6 +91,10 @@ public class Account extends AuditingEntity {
 
     public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public boolean isValid(String token) {
+        return this.emailToken.equals(token);
     }
 
     @Embeddable
