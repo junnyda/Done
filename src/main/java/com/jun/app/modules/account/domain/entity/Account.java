@@ -1,12 +1,16 @@
 package com.jun.app.modules.account.domain.entity;
 
 import com.jun.app.modules.settings.controller.NotificationForm;
-import com.jun.app.modules.account.domain.entity.AuditingEntity;
+import com.jun.app.modules.tag.domain.entity.Tag;
+
 import lombok.*;
+import lombok.ToString.Exclude;
+
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -41,9 +45,21 @@ public class Account extends AuditingEntity {
     private NotificationSetting notificationSetting = new NotificationSetting();
 
     private LocalDateTime emailTokenGeneratedAt;
-    
-    @ManyToMany
-    private Set<Tag> tags;
+
+    @ManyToMany @ToString.Exclude
+    private Set<Tag> tags = new HashSet<>();
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public static Account with(String email, String nickname, String password) {
+        Account account = new Account();
+        account.email = email;
+        account.nickname = nickname;
+        account.password = password;
+        return account;
+    }
 
     public void generateToken() {
         this.emailToken = UUID.randomUUID().toString();

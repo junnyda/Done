@@ -1,21 +1,28 @@
 package com.jun.app.modules.settings.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jun.app.modules.account.application.AccountService;
+import com.jun.app.modules.account.domain.entity.Account;
+import com.jun.app.modules.account.endpoint.controller.form.Profile;
+import com.jun.app.modules.tag.domain.entity.Tag;
+import com.jun.app.modules.account.support.CurrentUser;
+import com.jun.app.modules.tag.infra.repository.TagRepository;
+
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.jun.app.modules.account.application.AccountService;
-import com.jun.app.modules.account.domain.entity.Account;
-import com.jun.app.modules.account.endpoint.controller.form.Profile;
-import com.jun.app.modules.account.support.CurrentUser;
-
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,10 +36,14 @@ public class SettingsController {
     static final String SETTINGS_NOTIFICATION_URL = "/" + SETTINGS_NOTIFICATION_VIEW_NAME;
     static final String SETTINGS_ACCOUNT_VIEW_NAME = "settings/account";
     static final String SETTINGS_ACCOUNT_URL = "/" + SETTINGS_ACCOUNT_VIEW_NAME;
+    static final String SETTINGS_TAGS_VIEW_NAME = "settings/tags";
+    static final String SETTINGS_TAGS_URL = "/" + SETTINGS_TAGS_VIEW_NAME;
 
     private final AccountService accountService;
     private final PasswordFormValidator passwordFormValidator;
     private final NicknameFormValidator nicknameFormValidator;
+    private final TagRepository tagRepository;
+    private final ObjectMapper objectMapper;
 
     @InitBinder("passwordForm")
     public void passwordFormValidator(WebDataBinder webDataBinder) {
@@ -114,5 +125,46 @@ public class SettingsController {
         accountService.updateNickname(account, nicknameForm.getNickname());
         attributes.addFlashAttribute("message", "닉네임을 수정하였습니다.");
         return "redirect:" + SETTINGS_ACCOUNT_URL;
+    }
+
+    @GetMapping(SETTINGS_TAGS_URL)
+    public String updateTags(@CurrentUser Account account, Model model) {
+        model.addAttribute(account);
+        Set<Tag> tags = accountService.getTags(account);
+        model.addAttribute("tags", tags.stream()
+                .map(Tag::getTitle)
+                .collect(Collectors.toList()));
+        List<String> allTags = tagRepository.findAll()
+                .stream()
+                .map(Tag::getTitle)
+                .collect(Collectors.toList());
+        String whitelist = null;
+        try {
+            whitelist = objectMapper.writeValueAsString(allTags);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        model.addAttribute("whitelist", whitelist);
+        return SETTINGS_TAGS_VIEW_NAME;
+    }
+
+    @PostMapping(SETTINGS_TAGS_URL + "/add")
+    @ResponseStatus(HttpStatus.OK)
+    public void addTag(@CurrentUser Account account, @RequestBody TagForm tagForm) {
+        String title = tagForm.getTagTitle();
+        Tag tag = tagRepository.findByTitle(title)
+                .orElseGet(() -> tagRepository.save(Tag.builder()
+                        .title(title)
+                        .build()));
+        accountService.addTag(account, tag);
+    }
+
+    @PostMapping(SETTINGS_TAGS_URL + "/remove")
+    @ResponseStatus(HttpStatus.OK)
+    public void removeTag(@CurrentUser Account account, @RequestBody TagForm tagForm) {
+        String title = tagForm.getTagTitle();
+        Tag tag = tagRepository.findByTitle(title)
+                .orElseThrow(IllegalArgumentException::new);
+        accountService.removeTag(account, tag);
     }
 }
