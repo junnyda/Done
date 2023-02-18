@@ -4,6 +4,7 @@ package com.jun.app.modules.account.application;
 import com.jun.app.account.infra.repository.AccountRepository;
 import com.jun.app.modules.account.domain.UserAccount;
 import com.jun.app.modules.account.domain.entity.Account;
+import com.jun.app.modules.account.domain.entity.Zone;
 import com.jun.app.modules.tag.domain.entity.Tag;
 import com.jun.app.modules.account.endpoint.controller.SignUpForm;
 import com.jun.app.modules.account.endpoint.controller.form.Profile;
@@ -126,5 +127,21 @@ public class AccountService implements UserDetailsService {
         accountRepository.findById(account.getId())
                 .map(Account::getTags)
                 .ifPresent(tags -> tags.remove(tag));
+    }
+
+    public Set<Zone> getZones(Account account) {
+        return accountRepository.findById(account.getId())
+                .orElseThrow()
+                .getZones();
+    }
+
+    public void addZone(Account account, Zone zone) {
+        accountRepository.findById(account.getId())
+                .ifPresent(a -> a.getZones().add(zone));
+    }
+
+    public void removeZone(Account account, Zone zone) {
+        accountRepository.findById(account.getId())
+                .ifPresent(a -> a.getZones().remove(zone));
     }
 }
