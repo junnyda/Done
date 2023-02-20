@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
 
-//@Profile("local")
+//@Profile({"local", "local-db"})
 @Component 
 @Slf4j
 //@Configuration
