@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    username: testuser # 
+    password: testpass # 
+    url: jdbc:postgresql://localhost:5432/testdb # jdbc url을 설정.(testdb)
+    driver-class-name: org.postgresql.Driver # postgreSQL 드라이버
+  jpa:
+    hibernate:
+      ddl-auto: update # create-drop(x) update() 스키마가 변경되지 않는 이상 기존 데이터를 삭제하지 않습니다.
+    properties:
+      hibernate:
+        format_sql: true
+logging:
+  level:
+    org.hibernate:
+      SQL: debug
+      type.descriptor.sql.BasicBinder: trace
