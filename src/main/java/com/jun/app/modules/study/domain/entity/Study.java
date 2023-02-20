@@ -1,19 +1,15 @@
 package com.jun.app.modules.study.domain.entity;
 
-import java.time.LocalDateTime;
-
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
-import org.hibernate.loader.plan.exec.process.spi.ReturnReader;
-
 import com.jun.app.modules.account.domain.UserAccount;
 import com.jun.app.modules.account.domain.entity.Account;
 import com.jun.app.modules.account.domain.entity.Zone;
+import com.jun.app.modules.study.endpoint.form.StudyDescriptionForm;
 import com.jun.app.modules.study.endpoint.form.StudyForm;
 import com.jun.app.modules.tag.domain.entity.Tag;
 
@@ -71,7 +67,7 @@ public class Study {
 
     private boolean published;
 
-    private boolean closed;	
+    private boolean closed;
 
     private boolean useBanner;
 
@@ -87,16 +83,22 @@ public class Study {
     public void addManager(Account account) {
         managers.add(account);
     }
-    public boolean isJoinable(UserAccount userAccount) { 
+
+    public boolean isJoinable(UserAccount userAccount) {
         Account account = userAccount.getAccount();
         return this.isPublished() && this.isRecruiting() && !this.members.contains(account) && !this.managers.contains(account);
     }
 
-    public boolean isMember(UserAccount userAccount) { 
+    public boolean isMember(UserAccount userAccount) {
         return this.members.contains(userAccount.getAccount());
     }
 
-    public boolean isManager(UserAccount userAccount) { 
+    public boolean isManager(UserAccount userAccount) {
         return this.managers.contains(userAccount.getAccount());
+    }
+
+    public void updateDescription(StudyDescriptionForm studyDescriptionForm) {
+        this.shortDescription = studyDescriptionForm.getShortDescription();
+        this.fullDescription = studyDescriptionForm.getFullDescription();
     }
 }

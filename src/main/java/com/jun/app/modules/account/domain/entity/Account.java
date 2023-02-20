@@ -1,12 +1,11 @@
 package com.jun.app.modules.account.domain.entity;
 
-import com.jun.app.modules.settings.controller.NotificationForm;
-import com.jun.app.modules.tag.domain.entity.Tag;
-
 import lombok.*;
-import lombok.ToString.Exclude;
-
 import org.hibernate.Hibernate;
+
+import com.jun.app.modules.settings.controller.NotificationForm;
+import com.jun.app.modules.study.domain.entity.Study;
+import com.jun.app.modules.tag.domain.entity.Tag;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -114,6 +113,10 @@ public class Account extends AuditingEntity {
 
     public boolean isValid(String token) {
         return this.emailToken.equals(token);
+    }
+
+    public boolean isManagerOf(Study study) {
+        return study.getManagers().contains(this);
     }
 
     @Embeddable

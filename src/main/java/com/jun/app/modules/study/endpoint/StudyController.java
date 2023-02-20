@@ -4,6 +4,7 @@ import com.jun.app.modules.account.domain.entity.Account;
 import com.jun.app.modules.account.support.CurrentUser;
 import com.jun.app.modules.study.application.StudyService;
 import com.jun.app.modules.study.domain.entity.Study;
+import com.jun.app.modules.study.endpoint.form.StudyDescriptionForm;
 import com.jun.app.modules.study.endpoint.form.StudyForm;
 import com.jun.app.modules.study.endpoint.form.validator.StudyFormValidator;
 import com.jun.app.modules.study.infra.repository.StudyRepository;
@@ -17,16 +18,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+
 @Controller
 @RequiredArgsConstructor
 public class StudyController {
     private final StudyService studyService;
     private final StudyFormValidator studyFormValidator;
-    private final StudyRepository studyRepository;
 
     @InitBinder("studyForm")
     public void studyFormInitBinder(WebDataBinder webDataBinder) {
@@ -52,14 +54,14 @@ public class StudyController {
     @GetMapping("/study/{path}")
     public String viewStudy(@CurrentUser Account account, @PathVariable String path, Model model) {
         model.addAttribute(account);
-        model.addAttribute(studyRepository.findByPath(path));
+        model.addAttribute(studyService.getStudy(account, path));
         return "study/view";
     }
 
     @GetMapping("/study/{path}/members")
     public String viewStudyMembers(@CurrentUser Account account, @PathVariable String path, Model model) {
         model.addAttribute(account);
-        model.addAttribute(studyRepository.findByPath(path));
+        model.addAttribute(studyService.getStudy(account, path));
         return "study/members";
     }
 }

@@ -18,7 +18,6 @@ import com.jun.app.modules.account.domain.entity.Account;
 import com.jun.app.modules.account.endpoint.controller.validator.SignUpFormValidator;
 import com.jun.app.modules.account.support.CurrentUser;
 
-import lombok.RequiredArgsConstructor;
 
 import javax.validation.Valid;
 
@@ -86,16 +85,15 @@ public class AccountController {
         return "redirect:/";
     }
    
+    
     @GetMapping("/profile/{nickname}")
     public String viewProfile(@PathVariable String nickname, Model model, @CurrentUser Account account) {
-    	Account byNickname = accountRepository.findByNickname(nickname);
-    	if (byNickname == null) {
-    		throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
-    	}
-    	model.addAttribute(byNickname);
-    	model.addAttribute("isOwner", byNickname.equals(account));
-    	return "account/profile";
+        Account accountByNickname = accountService.getAccountBy(nickname);
+        model.addAttribute(accountByNickname);
+        model.addAttribute("isOwner", accountByNickname.equals(account));
+        return "account/profile";
     }
+    
     @GetMapping("/email-login")
     public String emailLoginForm() {
         return "account/email-login";
@@ -127,4 +125,5 @@ public class AccountController {
         accountService.login(account);
         return "account/logged-in-by-email";
     }
+
 }
