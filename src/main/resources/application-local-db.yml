@@ -15,3 +15,6 @@ logging:
     org.hibernate:
       SQL: debug
       type.descriptor.sql.BasicBinder: trace
+server:
+  tomcat:
+    max-http-form-post-size: 5MB

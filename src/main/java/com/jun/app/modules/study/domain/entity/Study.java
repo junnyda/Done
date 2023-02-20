@@ -3,6 +3,7 @@ package com.jun.app.modules.study.domain.entity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 
@@ -69,6 +70,7 @@ public class Study {
 
     private boolean closed;
 
+    @Accessors(fluent = true)
     private boolean useBanner;
 
     public static Study from(StudyForm studyForm) {
@@ -101,4 +103,14 @@ public class Study {
         this.shortDescription = studyDescriptionForm.getShortDescription();
         this.fullDescription = studyDescriptionForm.getFullDescription();
     }
+
+	public void updateImage(String image) {
+		this.image = image;
+		
+	}
+
+	public void setBanner(boolean userBanner) {
+		this.useBanner = useBanner;
+		
+	}
 }
