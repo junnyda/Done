@@ -20,7 +20,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @SpringBootTest
 @Transactional
 @AutoConfigureMockMvc
@@ -94,5 +93,42 @@ class StudyControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("study/form"))
                 .andExpect(model().hasErrors());
+    }
+
+    @Test
+    @DisplayName("스터디 뷰")
+    @WithAccount("jaime")
+    void studyView() throws Exception {
+        Account account = accountRepository.findByNickname("jaime");
+        String studyPath = "study-path";
+        studyService.createNewStudy(StudyForm.builder()
+                .path(studyPath)
+                .title("study-title")
+                .shortDescription("short-description")
+                .fullDescription("full-description")
+                .build(), account);
+        mockMvc.perform(get("/study/" + studyPath))
+                .andExpect(status().isOk())
+                .andExpect(view().name("study/view"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("study"));
+    }
+    @Test
+    @DisplayName("스터디 멤버 뷰")
+    @WithAccount("jaime")
+    void studyMemberView() throws Exception {
+        Account account = accountRepository.findByNickname("jaime");
+        String studyPath = "study-path";
+        studyService.createNewStudy(StudyForm.builder()
+                .path(studyPath)
+                .title("study-title")
+                .shortDescription("short-description")
+                .fullDescription("full-description")
+                .build(), account);
+        mockMvc.perform(get("/study/" + studyPath + "/members"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("study/members"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("study"));
     }
 }
