@@ -1,5 +1,6 @@
 package com.jun.app.modules.account.endpoint.controller;
 
+
 import javax.validation.Valid;
 
 import org.springframework.stereotype.Controller;
@@ -21,7 +22,6 @@ import com.jun.app.modules.account.infra.repository.AccountRepository;
 import com.jun.app.modules.account.support.CurrentUser;
 
 import lombok.RequiredArgsConstructor;
-
 
 @Controller
 @RequiredArgsConstructor
@@ -85,8 +85,7 @@ public class AccountController {
         accountService.sendVerificationEmail(account);
         return "redirect:/";
     }
-   
-    
+
     @GetMapping("/profile/{nickname}")
     public String viewProfile(@PathVariable String nickname, Model model, @CurrentUser Account account) {
         Account accountByNickname = accountService.getAccountBy(nickname);
@@ -94,7 +93,7 @@ public class AccountController {
         model.addAttribute("isOwner", accountByNickname.equals(account));
         return "account/profile";
     }
-    
+
     @GetMapping("/email-login")
     public String emailLoginForm() {
         return "account/email-login";
@@ -107,10 +106,10 @@ public class AccountController {
             model.addAttribute("error", "유효한 이메일 주소가 아닙니다.");
             return "account/email-login";
         }
-//        if (!account.enableToSendEmail()) {
- //           model.addAttribute("error", "너무 잦은 요청입니다. 5분 뒤에 다시 시도하세요.");
-  //          return "account/email-login";
-   //     }
+        if (!account.enableToSendEmail()) {
+            model.addAttribute("error", "너무 잦은 요청입니다. 5분 뒤에 다시 시도하세요.");
+            return "account/email-login";
+        }
         accountService.sendLoginLink(account);
         attributes.addFlashAttribute("message", "로그인 가능한 링크를 이메일로 전송하였습니다.");
         return "redirect:/email-login";
@@ -126,5 +125,4 @@ public class AccountController {
         accountService.login(account);
         return "account/logged-in-by-email";
     }
-
 }
