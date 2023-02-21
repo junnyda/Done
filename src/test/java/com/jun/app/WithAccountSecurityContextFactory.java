@@ -10,7 +10,7 @@ import org.springframework.security.test.context.support.WithSecurityContextFact
 import com.jun.app.modules.account.application.AccountService;
 import com.jun.app.modules.account.endpoint.controller.SignUpForm;
 
-public class WithAccountSecurityContextFactory implements WithSecurityContextFactory<WithAccount> { // (1)
+public class WithAccountSecurityContextFactory implements WithSecurityContextFactory<WithAccount> {
 
     private final AccountService accountService;
 
@@ -19,19 +19,19 @@ public class WithAccountSecurityContextFactory implements WithSecurityContextFac
     }
 
     @Override
-    public SecurityContext createSecurityContext(WithAccount annotation) { // (2)
-        String nickname = annotation.value(); 
-
-        SignUpForm signUpForm = new SignUpForm(); 
-        signUpForm.setNickname(nickname);
-        signUpForm.setEmail(nickname + "@gmail.com");
-        signUpForm.setPassword("1234asdf");
-        accountService.signUp(signUpForm);
-
-        UserDetails principal = accountService.loadUserByUsername(nickname); // (5)
-        Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities()); // (6)
-        SecurityContext context = SecurityContextHolder.createEmptyContext(); // (7)
-        context.setAuthentication(authentication);
+    public SecurityContext createSecurityContext(WithAccount annotation) {
+        String[] nicknames = annotation.value();
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        for (String nickname : nicknames) {
+            SignUpForm signUpForm = new SignUpForm();
+            signUpForm.setNickname(nickname);
+            signUpForm.setEmail(nickname + "@gmail.com");
+            signUpForm.setPassword("1234asdf");
+            accountService.signUp(signUpForm);
+            UserDetails principal = accountService.loadUserByUsername(nickname);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
+            context.setAuthentication(authentication);
+        }
         return context;
     }
 }

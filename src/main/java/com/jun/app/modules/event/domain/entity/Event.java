@@ -13,19 +13,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import com.jun.app.modules.account.domain.entity.Account;
+import com.jun.app.modules.event.endpoint.form.EventForm;
 import com.jun.app.modules.study.domain.entity.Study;
 
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @ToString
-@EqualsAndHashCode(of = "id")
 public class Event {
     @Id
     @GeneratedValue
@@ -57,10 +55,28 @@ public class Event {
 
     private Integer limitOfEnrollments;
 
-    @OneToMany(mappedBy = "event")
+    @OneToMany(mappedBy = "event") @ToString.Exclude
     private List<Enrollment> enrollments;
 
     @Enumerated(EnumType.STRING)
     private EventType eventType;
 
+    public void setEnrollments(List<Enrollment> enrollments) {
+        this.enrollments = enrollments;
+    }
+
+    public static Event from(EventForm eventForm, Account account, Study study) {
+        Event event = new Event();
+        event.eventType = eventForm.getEventType();
+        event.description = eventForm.getDescription();
+        event.endDateTime = eventForm.getEndDateTime();
+        event.endEnrollmentDateTime = eventForm.getEndEnrollmentDateTime();
+        event.limitOfEnrollments = eventForm.getLimitOfEnrollments();
+        event.startDateTime = eventForm.getStartDateTime();
+        event.title = eventForm.getTitle();
+        event.createdBy = account;
+        event.study = study;
+        event.createdDateTime = LocalDateTime.now();
+        return event;
+    }
 }
