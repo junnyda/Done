@@ -12,6 +12,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import com.jun.app.modules.account.domain.UserAccount;
 import com.jun.app.modules.account.domain.entity.Account;
 import com.jun.app.modules.event.endpoint.form.EventForm;
 import com.jun.app.modules.study.domain.entity.Study;
@@ -78,5 +79,36 @@ public class Event {
         event.study = study;
         event.createdDateTime = LocalDateTime.now();
         return event;
+    }
+    public boolean isEnrollableFor(UserAccount userAccount) {
+        return isNotClosed() && !isAlreadyEnrolled(userAccount);
+    }
+
+    public boolean isDisenrollableFor(UserAccount userAccount) {
+        return isNotClosed() && isAlreadyEnrolled(userAccount);
+    }
+
+    private boolean isNotClosed() {
+        return this.endEnrollmentDateTime.isAfter(LocalDateTime.now());
+    }
+
+    private boolean isAlreadyEnrolled(UserAccount userAccount) {
+        Account account = userAccount.getAccount();
+        for (Enrollment enrollment : this.enrollments) {
+            if (enrollment.getAccount().equals(account)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isAttended(UserAccount userAccount) {
+        Account account = userAccount.getAccount();
+        for (Enrollment enrollment : this.enrollments) {
+            if (enrollment.getAccount().equals(account) && enrollment.isAttended()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

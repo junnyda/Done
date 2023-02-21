@@ -12,6 +12,7 @@
     "bootstrap": "^5.2.3",
     "font-awesome": "^4.7.0",
     "jdenticon": "^3.2.0",
+    "moment": "^2.29.4",
     "pkg": "^5.8.0",
     "tinymce": "^6.3.1"
   },
