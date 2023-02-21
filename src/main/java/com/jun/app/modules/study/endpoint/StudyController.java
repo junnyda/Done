@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 public class StudyController {
     private final StudyService studyService;
     private final StudyFormValidator studyFormValidator;
+    private final StudyRepository studyRepository;
 
     @InitBinder("studyForm")
     public void studyFormInitBinder(WebDataBinder webDataBinder) {
@@ -54,14 +55,14 @@ public class StudyController {
     @GetMapping("/study/{path}")
     public String viewStudy(@CurrentUser Account account, @PathVariable String path, Model model) {
         model.addAttribute(account);
-        model.addAttribute(studyService.getStudy(account, path));
+        model.addAttribute(studyRepository.findByPath(path));
         return "study/view";
     }
 
     @GetMapping("/study/{path}/members")
     public String viewStudyMembers(@CurrentUser Account account, @PathVariable String path, Model model) {
         model.addAttribute(account);
-        model.addAttribute(studyService.getStudy(account, path));
+        model.addAttribute(studyRepository.findByPath(path));
         return "study/members";
     }
 }
