@@ -1,8 +1,10 @@
-package com.jun.app.modules.settings.controller;
+package com.jun.app.modules.account.endpoint.controller.validator;
 
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+
+import com.jun.app.modules.account.endpoint.controller.form.PasswordForm;
 
 @Component
 public class PasswordFormValidator implements Validator {

@@ -1,12 +1,14 @@
 package com.jun.app.modules.account.endpoint.controller.validator;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import com.jun.app.account.infra.repository.AccountRepository;
-import com.jun.app.modules.account.endpoint.controller.SignUpForm;
+import com.jun.app.modules.account.endpoint.controller.form.SignUpForm;
+import com.jun.app.modules.account.infra.repository.AccountRepository;
+
+import lombok.RequiredArgsConstructor;
+
 
 @Component // (2)
 @RequiredArgsConstructor // (2)

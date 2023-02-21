@@ -1,6 +1,6 @@
 package com.jun.app.modules.study.application;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,14 +10,21 @@ import com.jun.app.modules.account.domain.entity.Zone;
 import com.jun.app.modules.study.domain.entity.Study;
 import com.jun.app.modules.study.endpoint.form.StudyDescriptionForm;
 import com.jun.app.modules.study.endpoint.form.StudyForm;
+import com.jun.app.modules.study.event.StudyCreatedEvent;
+import com.jun.app.modules.study.event.StudyUpdateEvent;
 import com.jun.app.modules.study.infra.repository.StudyRepository;
 import com.jun.app.modules.tag.domain.entity.Tag;
+import com.jun.app.modules.tag.infra.repository.TagRepository;
 
+import lombok.RequiredArgsConstructor;
+import net.bytebuddy.utility.RandomString;
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class StudyService {
     private final StudyRepository studyRepository;
+    private final ApplicationEventPublisher eventPublisher;
+    private final TagRepository tagRepository;
 
     public Study createNewStudy(StudyForm studyForm, Account account) {
         Study study = Study.from(studyForm);
@@ -25,7 +32,7 @@ public class StudyService {
         return studyRepository.save(study);
     }
 
-    public Study getStudy(Account account, String path) {
+    public Study getStudy(String path) {
         Study study = studyRepository.findByPath(path);
         checkStudyExists(path, study);
         return study;
@@ -60,13 +67,14 @@ public class StudyService {
     }
 
     private void checkAccountIsManager(Account account, Study study) {
-        if (!account.isManagerOf(study)) {
+        if (!study.isManagedBy(account)) {
             throw new AccessDeniedException("해당 기능을 사용할 수 없습니다.");
         }
     }
 
     public void updateStudyDescription(Study study, StudyDescriptionForm studyDescriptionForm) {
         study.updateDescription(studyDescriptionForm);
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디 소개를 수정했습니다."));
     }
 
     public void updateStudyImage(Study study, String image) {
@@ -99,18 +107,22 @@ public class StudyService {
 
     public void publish(Study study) {
         study.publish();
+        eventPublisher.publishEvent(new StudyCreatedEvent(study));
     }
 
     public void close(Study study) {
         study.close();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "스터디를 종료했습니다."));
     }
 
     public void startRecruit(Study study) {
         study.startRecruit();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "팀원 모집을 시작합니다."));
     }
 
     public void stopRecruit(Study study) {
         study.stopRecruit();
+        eventPublisher.publishEvent(new StudyUpdateEvent(study, "팀원 모집을 종료했습니다."));
     }
 
     public boolean isValidPath(String newPath) {
@@ -139,13 +151,31 @@ public class StudyService {
         studyRepository.delete(study);
     }
 
-	public void removeMemeber(Study study, Account account) {
-		study.removeMember(account);
-		
-	}
+    public void addMember(Study study, Account account) {
+        study.addMember(account);
+    }
 
-	public void addMemeber(Study study, Account account) {
-		study.addMember(account);
-		
-	}
+    public void removeMember(Study study, Account account) {
+        study.removeMember(account);
+    }
+
+    public Study getStudyToEnroll(String path) {
+        return studyRepository.findStudyOnlyByPath(path)
+                .orElseThrow(() -> new IllegalArgumentException(path + "에 해당하는 스터디가 존재하지 않습니다."));
+    }
+
+    public void generateTestStudies(Account account) {
+        for (int i = 0; i < 30; i++) {
+            String randomValue = RandomString.make(5);
+            Study study = createNewStudy(StudyForm.builder()
+                    .title("테스트 스터디 " + randomValue)
+                    .path("test-" + randomValue)
+                    .shortDescription("테스트용 스터디 입니다.")
+                    .fullDescription("test")
+                    .build(), account);
+            study.publish();
+            Tag jpa = tagRepository.findByTitle("jpa").orElse(null);
+            study.getTags().add(jpa);
+        }
+    }
 }

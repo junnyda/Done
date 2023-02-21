@@ -6,7 +6,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
+import com.jun.app.modules.event.domain.entity.Event;
 import com.jun.app.modules.event.endpoint.form.EventForm;
+
 
 @Component
 public class EventValidator implements Validator {
@@ -37,5 +39,11 @@ public class EventValidator implements Validator {
 
     private boolean isEarlierThan(LocalDateTime time, LocalDateTime targetTime) {
         return time.isBefore(targetTime);
+    }
+
+    public void validateUpdateForm(EventForm eventForm, Event event, Errors errors) {
+        if (eventForm.getLimitOfEnrollments() < event.getNumberOfAcceptedEnrollments()) {
+            errors.rejectValue("limitOfEnrollments", "wrong.value", "확인된 참가 신청보다 모집 인원 수가 커야 합니다.");
+        }
     }
 }

@@ -1,11 +1,23 @@
 package com.jun.app.modules.study.domain.entity;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.NamedAttributeNode;
+import javax.persistence.NamedEntityGraph;
+
+import org.hibernate.annotations.ColumnDefault;
 
 import com.jun.app.modules.account.domain.UserAccount;
 import com.jun.app.modules.account.domain.entity.Account;
@@ -14,11 +26,11 @@ import com.jun.app.modules.study.endpoint.form.StudyDescriptionForm;
 import com.jun.app.modules.study.endpoint.form.StudyForm;
 import com.jun.app.modules.tag.domain.entity.Tag;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
+
 
 @Entity
 @NamedEntityGraph(name = "Study.withAll", attributeNodes = {
@@ -40,6 +52,10 @@ import java.util.Set;
 })
 @NamedEntityGraph(name = "Study.withMembers", attributeNodes = {
         @NamedAttributeNode("members")
+})
+@NamedEntityGraph(name = "Study.withTagsAndZones", attributeNodes = {
+        @NamedAttributeNode("tags"),
+        @NamedAttributeNode("zones")
 })
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -87,6 +103,9 @@ public class Study {
 
     @Accessors(fluent = true)
     private boolean useBanner;
+
+    @ColumnDefault(value = "0")
+    private Integer memberCount;
 
     public static Study from(StudyForm studyForm) {
         Study study = new Study();
@@ -194,13 +213,19 @@ public class Study {
 
     public void addMember(Account account) {
         this.members.add(account);
+        this.memberCount++;
     }
 
     public void removeMember(Account account) {
         this.members.remove(account);
+        this.memberCount--;
     }
 
     public String getEncodedPath() {
         return URLEncoder.encode(path, StandardCharsets.UTF_8);
+    }
+
+    public boolean isManagedBy(Account account) {
+        return this.getManagers().contains(account);
     }
 }

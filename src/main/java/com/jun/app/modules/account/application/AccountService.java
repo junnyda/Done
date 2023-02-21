@@ -1,17 +1,6 @@
 package com.jun.app.modules.account.application;
 
 
-import com.jun.app.account.infra.repository.AccountRepository;
-import com.jun.app.modules.account.domain.UserAccount;
-import com.jun.app.modules.account.domain.entity.Account;
-import com.jun.app.modules.account.domain.entity.Zone;
-import com.jun.app.modules.tag.domain.entity.Tag;
-import com.jun.app.modules.account.endpoint.controller.SignUpForm;
-import com.jun.app.modules.account.endpoint.controller.form.Profile;
-import com.jun.app.modules.settings.controller.NotificationForm;
-
-import lombok.RequiredArgsConstructor;
-
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -27,6 +16,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.jun.app.modules.account.domain.UserAccount;
+import com.jun.app.modules.account.domain.entity.Account;
+import com.jun.app.modules.account.domain.entity.Zone;
+import com.jun.app.modules.account.endpoint.controller.form.NotificationForm;
+import com.jun.app.modules.account.endpoint.controller.form.SignUpForm;
+import com.jun.app.modules.account.infra.repository.AccountRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor

@@ -1,13 +1,15 @@
-package com.jun.app.modules.settings.controller;
+package com.jun.app.modules.account.endpoint.controller.validator;
 
 
-import com.jun.app.account.infra.repository.AccountRepository;
-import com.jun.app.modules.account.domain.entity.Account;
-
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+
+import com.jun.app.modules.account.domain.entity.Account;
+import com.jun.app.modules.account.endpoint.controller.form.NicknameForm;
+import com.jun.app.modules.account.infra.repository.AccountRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Component 
 @RequiredArgsConstructor

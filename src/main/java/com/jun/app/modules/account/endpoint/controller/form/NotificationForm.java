@@ -1,4 +1,4 @@
-package com.jun.app.modules.settings.controller;
+package com.jun.app.modules.account.endpoint.controller.form;
 
 import com.jun.app.modules.account.domain.entity.Account;
 import lombok.AccessLevel;

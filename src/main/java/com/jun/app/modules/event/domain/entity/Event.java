@@ -1,26 +1,30 @@
 package com.jun.app.modules.event.domain.entity;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-
 import com.jun.app.modules.account.domain.UserAccount;
 import com.jun.app.modules.account.domain.entity.Account;
 import com.jun.app.modules.event.endpoint.form.EventForm;
 import com.jun.app.modules.study.domain.entity.Study;
 
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
+import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+
+
+
+@NamedEntityGraph(
+        name = "Event.withEnrollments",
+        attributeNodes = @NamedAttributeNode("enrollments")
+)
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
@@ -57,14 +61,11 @@ public class Event {
     private Integer limitOfEnrollments;
 
     @OneToMany(mappedBy = "event") @ToString.Exclude
-    private List<Enrollment> enrollments;
+    @OrderBy("enrolledAt")
+    private List<Enrollment> enrollments = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     private EventType eventType;
-
-    public void setEnrollments(List<Enrollment> enrollments) {
-        this.enrollments = enrollments;
-    }
 
     public static Event from(EventForm eventForm, Account account, Study study) {
         Event event = new Event();
@@ -80,12 +81,13 @@ public class Event {
         event.createdDateTime = LocalDateTime.now();
         return event;
     }
+
     public boolean isEnrollableFor(UserAccount userAccount) {
-        return isNotClosed() && !isAlreadyEnrolled(userAccount);
+        return isNotClosed() && !isAttended(userAccount) && !isAlreadyEnrolled(userAccount);
     }
 
     public boolean isDisenrollableFor(UserAccount userAccount) {
-        return isNotClosed() && isAlreadyEnrolled(userAccount);
+        return isNotClosed() && !isAttended(userAccount) && isAlreadyEnrolled(userAccount);
     }
 
     private boolean isNotClosed() {
@@ -110,5 +112,91 @@ public class Event {
             }
         }
         return false;
+    }
+
+    public int numberOfRemainSpots() {
+        int accepted = (int) this.enrollments.stream()
+                .filter(Enrollment::isAccepted)
+                .count();
+        return this.limitOfEnrollments - accepted;
+    }
+
+    public Long getNumberOfAcceptedEnrollments() {
+        return this.enrollments.stream()
+                .filter(Enrollment::isAccepted)
+                .count();
+    }
+
+    public void updateFrom(EventForm eventForm) {
+        this.title = eventForm.getTitle();
+        this.description = eventForm.getDescription();
+        this.eventType = eventForm.getEventType();
+        this.startDateTime = eventForm.getStartDateTime();
+        this.endDateTime = eventForm.getEndDateTime();
+        this.limitOfEnrollments = eventForm.getLimitOfEnrollments();
+        this.endEnrollmentDateTime = eventForm.getEndEnrollmentDateTime();
+    }
+
+    public boolean isAbleToAcceptWaitingEnrollment() {
+        return this.eventType == EventType.FCFS && this.limitOfEnrollments > this.getNumberOfAcceptedEnrollments();
+    }
+
+    public void addEnrollment(Enrollment enrollment) {
+        this.enrollments.add(enrollment);
+        enrollment.attach(this);
+    }
+
+    public void removeEnrollment(Enrollment enrollment) {
+        this.enrollments.remove(enrollment);
+        enrollment.detachEvent();
+    }
+
+    public void acceptNextIfAvailable() {
+        if (this.isAbleToAcceptWaitingEnrollment()) {
+            this.firstWaitingEnrollment().ifPresent(Enrollment::accept);
+        }
+    }
+
+    private Optional<Enrollment> firstWaitingEnrollment() {
+        return this.enrollments.stream()
+                .filter(e -> !e.isAccepted())
+                .findFirst();
+    }
+
+    public void acceptWaitingList() {
+        if (this.isAbleToAcceptWaitingEnrollment()) {
+            List<Enrollment> waitingList = this.enrollments.stream()
+                    .filter(e -> !e.isAccepted())
+                    .collect(Collectors.toList());
+            int numberToAccept = (int) Math.min(limitOfEnrollments - getNumberOfAcceptedEnrollments(), waitingList.size());
+            waitingList.subList(0, numberToAccept).forEach(Enrollment::accept);
+        }
+    }
+
+    public void accept(Enrollment enrollment) {
+        if (this.eventType == EventType.CONFIRMATIVE && this.limitOfEnrollments > this.getNumberOfAcceptedEnrollments()) {
+            enrollment.accept();
+        }
+    }
+
+    public void reject(Enrollment enrollment) {
+        if (this.eventType == EventType.CONFIRMATIVE) {
+            enrollment.reject();
+        }
+    }
+
+    public boolean isAcceptable(Enrollment enrollment) {
+        return this.eventType == EventType.CONFIRMATIVE
+                && this.enrollments.contains(enrollment)
+                && this.limitOfEnrollments > this.getNumberOfAcceptedEnrollments()
+                && !enrollment.isAttended()
+                && !enrollment.isAccepted();
+    }
+
+    public boolean isRejectable(Enrollment enrollment) {
+        return this.eventType == EventType.CONFIRMATIVE
+                && this.enrollments.contains(enrollment)
+                && !enrollment.isAttended()
+                && enrollment.isAccepted();
     }
 }

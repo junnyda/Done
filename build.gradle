@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '2.7.8'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	id 'com.github.node-gradle.node' version '2.2.3' 
+	id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10' //new
 }
 
 group = 'com.jun.'
@@ -28,13 +29,16 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	
+	//test
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 	annotationProcessor 'org.projectlombok:lombok'
+	//test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'com.tngtech.archunit:archunit-junit5-api:0.23.1'
 	
 	//db
 	runtimeOnly 'com.h2database:h2'
@@ -42,7 +46,7 @@ dependencies {
 	
 }
 node {
-    version = '16.9.1'
+    version = '19.6.0'
     download = true
     nodeModulesDir = file("${projectDir}/src/main/resources/static")
 }
@@ -54,6 +58,27 @@ task copyFrontLib(type: Copy) {
 
 copyFrontLib.dependsOn npmInstall
 compileJava.dependsOn copyFrontLib
+
+//
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+    main.java.srcDir querydslDir
+}
+
+configurations {
+    querydsl.extendsFrom compileClasspath
+}
+
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+//
 
 tasks.named('test') {
 	useJUnitPlatform()

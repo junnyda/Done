@@ -1,18 +1,35 @@
 package com.jun.app.modules.account.domain.entity;
 
-import lombok.*;
-import org.hibernate.Hibernate;
-
-import com.jun.app.modules.settings.controller.NotificationForm;
-import com.jun.app.modules.study.domain.entity.Study;
-import com.jun.app.modules.tag.domain.entity.Tag;
-
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
+import javax.persistence.PostLoad;
+
+import org.hibernate.Hibernate;
+
+import com.jun.app.modules.account.endpoint.controller.form.NotificationForm;
+import com.jun.app.modules.study.domain.entity.Study;
+import com.jun.app.modules.tag.domain.entity.Tag;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED) @AllArgsConstructor(access = AccessLevel.PROTECTED)

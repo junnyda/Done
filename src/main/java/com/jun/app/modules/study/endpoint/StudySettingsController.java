@@ -1,35 +1,42 @@
 package com.jun.app.modules.study.endpoint;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jun.app.modules.account.domain.entity.Account;
-import com.jun.app.modules.account.domain.entity.Zone;
-import com.jun.app.modules.account.support.CurrentUser;
-
-import com.jun.app.modules.study.application.StudyService;
-import com.jun.app.modules.study.domain.entity.Study;
-import com.jun.app.modules.study.endpoint.form.StudyDescriptionForm;
-import com.jun.app.modules.study.infra.repository.StudyRepository;
-import com.jun.app.modules.settings.controller.TagForm;
-import com.jun.app.modules.settings.controller.ZoneForm;
-import com.jun.app.modules.tag.application.TagService;
-import com.jun.app.modules.tag.domain.entity.Tag;
-import com.jun.app.modules.tag.infra.repository.TagRepository;
-import com.jun.app.modules.zone.infra.repository.ZoneRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jun.app.modules.account.domain.entity.Account;
+import com.jun.app.modules.account.domain.entity.Zone;
+import com.jun.app.modules.account.endpoint.controller.form.TagForm;
+import com.jun.app.modules.account.endpoint.controller.form.ZoneForm;
+import com.jun.app.modules.account.support.CurrentUser;
+import com.jun.app.modules.study.application.StudyService;
+import com.jun.app.modules.study.domain.entity.Study;
+import com.jun.app.modules.study.endpoint.form.StudyDescriptionForm;
+import com.jun.app.modules.study.infra.repository.StudyRepository;
+import com.jun.app.modules.tag.application.TagService;
+import com.jun.app.modules.tag.domain.entity.Tag;
+import com.jun.app.modules.tag.infra.repository.TagRepository;
+import com.jun.app.modules.zone.infra.repository.ZoneRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/study/{path}/settings")

@@ -1,4 +1,4 @@
-package com.jun.app.modules.account.endpoint.controller;
+package com.jun.app.modules.account.endpoint.controller.form;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;

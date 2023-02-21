@@ -1,4 +1,4 @@
-package com.jun.app.modules.settings.controller;
+package com.jun.app.modules.account.endpoint.controller.form;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

@@ -10,6 +10,10 @@ import com.jun.app.modules.tag.domain.entity.Tag;
 import com.jun.app.modules.tag.infra.repository.TagRepository;
 import com.jun.app.modules.zone.infra.repository.ZoneRepository;
 
+import main.endpoint.controller.SettingsController;
+import main.endpoint.controller.TagForm;
+import main.endpoint.controller.ZoneForm;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

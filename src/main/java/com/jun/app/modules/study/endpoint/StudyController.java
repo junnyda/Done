@@ -1,15 +1,10 @@
 package com.jun.app.modules.study.endpoint;
 
-import com.jun.app.modules.account.domain.entity.Account;
-import com.jun.app.modules.account.support.CurrentUser;
-import com.jun.app.modules.study.application.StudyService;
-import com.jun.app.modules.study.domain.entity.Study;
-import com.jun.app.modules.study.endpoint.form.StudyDescriptionForm;
-import com.jun.app.modules.study.endpoint.form.StudyForm;
-import com.jun.app.modules.study.endpoint.form.validator.StudyFormValidator;
-import com.jun.app.modules.study.infra.repository.StudyRepository;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
-import lombok.RequiredArgsConstructor;
+import javax.validation.Valid;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -18,11 +13,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.validation.Valid;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import com.jun.app.modules.account.domain.entity.Account;
+import com.jun.app.modules.account.support.CurrentUser;
+import com.jun.app.modules.study.application.StudyService;
+import com.jun.app.modules.study.domain.entity.Study;
+import com.jun.app.modules.study.endpoint.form.StudyForm;
+import com.jun.app.modules.study.endpoint.form.validator.StudyFormValidator;
+import com.jun.app.modules.study.infra.repository.StudyRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
@@ -55,28 +55,34 @@ public class StudyController {
     @GetMapping("/study/{path}")
     public String viewStudy(@CurrentUser Account account, @PathVariable String path, Model model) {
         model.addAttribute(account);
-        model.addAttribute(studyRepository.findByPath(path));
+        model.addAttribute(studyService.getStudy(path));
         return "study/view";
     }
 
     @GetMapping("/study/{path}/members")
     public String viewStudyMembers(@CurrentUser Account account, @PathVariable String path, Model model) {
         model.addAttribute(account);
-        model.addAttribute(studyRepository.findByPath(path));
+        model.addAttribute(studyService.getStudy(path));
         return "study/members";
     }
+
     @GetMapping("/study/{path}/join")
     public String joinStudy(@CurrentUser Account account, @PathVariable String path) {
-    	Study study = studyRepository.findStudyWithMembersByPath(path);
-    	studyService.addMemeber(study, account);
-    	return "redirect:/study/" + study.getEncodedPath() + "/members";
+        Study study = studyRepository.findStudyWithMembersByPath(path);
+        studyService.addMember(study, account);
+        return "redirect:/study/" + study.getEncodedPath() + "/members";
     }
-    
+
     @GetMapping("/study/{path}/leave")
-    public String leaveStduy(@CurrentUser Account account ,@PathVariable String path) {
-    	Study study = studyRepository.findStudyWithMembersByPath(path);
-    	studyService.removeMemeber(study, account);
-    	return "redirect:/study/" + study.getEncodedPath() + "/members";
+    public String leaveStudy(@CurrentUser Account account, @PathVariable String path) {
+        Study study = studyRepository.findStudyWithMembersByPath(path);
+        studyService.removeMember(study, account);
+        return "redirect:/study/" + study.getEncodedPath() + "/members";
     }
-    
+
+    @GetMapping("/study/data")
+    public String generateTestData(@CurrentUser Account account) {
+        studyService.generateTestStudies(account);
+        return "redirect:/";
+    }
 }

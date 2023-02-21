@@ -1,4 +1,4 @@
-package com.jun.app.modules.account.infra.email;
+package com.jun.app.infra.mail;
 
 import lombok.extern.slf4j.Slf4j;
 
